@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CITOYEN
+  AGENT
+  ADMIN
+}
+
+enum ReportStatus {
+  NOUVEAU
+  PRIS_EN_CHARGE
+  EN_COURS
+  EN_ATTENTE_INFORMATIONS
+  RESOLU
+  CLOS
+  REJETE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      UserRole @default(CITOYEN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  reportsCreated Report[]        @relation("ReportCreator")
+  reportsAssigned Report[]       @relation("ReportAgent")
+  comments       Comment[]
+  reportHistory  ReportHistory[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reports Report[]
+
+  @@map("categories")
+}
+
+model Report {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  categoryId  String
+  location    String
+  photo       String?
+  status      ReportStatus @default(NOUVEAU)
+  userId      String
+  agentId     String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  category Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  creator  User            @relation("ReportCreator", fields: [userId], references: [id], onDelete: Cascade)
+  agent    User?           @relation("ReportAgent", fields: [agentId], references: [id], onDelete: SetNull)
+  comments Comment[]
+  history  ReportHistory[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([agentId])
+  @@index([createdAt])
+  @@map("reports")
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  content    String
+  isInternal Boolean  @default(false)
+  reportId   String
+  userId     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+  @@index([createdAt])
+  @@map("comments")
+}
+
+model ReportHistory {
+  id        String       @id @default(cuid())
+  reportId  String
+  status    ReportStatus
+  changedBy String
+  createdAt DateTime     @default(now())
+
+  // Relations
+  report  Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [changedBy], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+  @@index([createdAt])
+  @@map("report_history")
+}
+
