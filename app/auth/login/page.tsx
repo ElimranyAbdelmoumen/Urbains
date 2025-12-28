@@ -25,13 +25,25 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError('Email ou mot de passe incorrect')
-      } else {
+        console.error('Erreur de connexion:', result.error)
+        // Messages d'erreur plus spécifiques
+        if (result.error === 'CredentialsSignin') {
+          setError('Email ou mot de passe incorrect')
+        } else if (result.error.includes('NEXTAUTH_SECRET')) {
+          setError('Erreur de configuration serveur. Contactez l\'administrateur.')
+        } else {
+          setError(`Erreur: ${result.error}`)
+        }
+      } else if (result?.ok) {
+        // Connexion réussie
         router.push('/')
         router.refresh()
+      } else {
+        setError('Une erreur inattendue est survenue')
       }
     } catch (error) {
-      setError('Une erreur est survenue')
+      console.error('Erreur lors de la connexion:', error)
+      setError('Une erreur est survenue. Vérifiez votre connexion.')
     } finally {
       setLoading(false)
     }
