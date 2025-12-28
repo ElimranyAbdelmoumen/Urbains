@@ -36,7 +36,26 @@ npm install
 
 ### Étape 3 : Configurer MySQL
 
-#### Option A : MySQL Local (Windows)
+#### Option A : Configuration automatique (Recommandé) ⚡
+
+**Utilisez le script PowerShell fourni pour tout configurer automatiquement :**
+
+```powershell
+.\setup-database.ps1
+```
+
+Ce script va :
+- ✅ Vérifier que MySQL est installé
+- ✅ Tester la connexion MySQL
+- ✅ Créer automatiquement la base de données
+- ✅ Générer le fichier `.env` avec toutes les variables
+- ✅ Générer automatiquement `NEXTAUTH_SECRET`
+- ✅ Créer toutes les tables dans la base de données
+- ✅ Optionnellement peupler la DB avec des données de test
+
+**Suivez simplement les instructions à l'écran !**
+
+#### Option B : Configuration manuelle
 
 1. **Installer MySQL** (si pas déjà installé)
    - Téléchargez depuis : https://dev.mysql.com/downloads/mysql/
@@ -48,11 +67,6 @@ npm install
 
    ```sql
    CREATE DATABASE urbains CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   ```
-
-   Ou utilisez le script PowerShell fourni :
-   ```powershell
-   .\setup-database.ps1
    ```
 
 3. **Vérifier la connexion**
@@ -80,6 +94,8 @@ Vous pouvez utiliser un service MySQL gratuit :
 3. Copiez l'URL de connexion fournie
 
 ### Étape 4 : Configurer les variables d'environnement
+
+> **Note** : Si vous avez utilisé le script `setup-database.ps1`, cette étape est déjà faite ! Passez à l'étape 5.
 
 1. **Créer le fichier `.env`**
 
@@ -138,6 +154,8 @@ Vous pouvez utiliser un service MySQL gratuit :
    - Copiez le secret généré
 
 ### Étape 5 : Configurer Prisma
+
+> **Note** : Si vous avez utilisé le script `setup-database.ps1`, cette étape est déjà faite ! Passez à l'étape 6.
 
 1. **Générer le client Prisma**
 
