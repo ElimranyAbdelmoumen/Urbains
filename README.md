@@ -6,14 +6,14 @@ Plateforme web permettant aux citoyens de signaler des problèmes urbains et aux
 
 - **Frontend**: Next.js 14 (App Router) + TypeScript + TailwindCSS
 - **Backend**: Next.js API Routes
-- **Base de données**: PostgreSQL (via Prisma)
+- **Base de données**: MySQL (via Prisma)
 - **Authentification**: NextAuth.js
 - **Déploiement**: Vercel
 
 ## 📋 Prérequis
 
 - Node.js 18+ 
-- PostgreSQL (local ou Supabase/Neon gratuit)
+- MySQL (local ou service cloud gratuit)
 - npm ou yarn
 
 ## 🛠️ Installation
@@ -35,7 +35,7 @@ cp .env.example .env
 ```
 
 Éditez `.env` et configurez :
-- `DATABASE_URL` : URL de votre base PostgreSQL
+- `DATABASE_URL` : URL de votre base MySQL (format: `mysql://user:password@host:port/database`)
 - `NEXTAUTH_SECRET` : Générez avec `openssl rand -base64 32`
 - `NEXTAUTH_URL` : URL de votre application (http://localhost:3000 en dev)
 
@@ -98,7 +98,22 @@ Pour créer un compte citoyen, utilisez la page d'inscription.
 - `npm run start` : Serveur de production
 - `npm run db:generate` : Générer le client Prisma
 - `npm run db:push` : Pousser le schéma vers la DB
+- `npm run db:migrate` : Créer une migration
 - `npm run db:studio` : Ouvrir Prisma Studio
+- `npm run db:seed` : Peupler la base avec des données de test
+
+## ✨ Fonctionnalités
+
+- ✅ Signalement de problèmes urbains (routes, éclairage, signalisation, etc.)
+- ✅ Gestion des statuts (Nouveau, Pris en charge, En cours, Résolu, etc.)
+- ✅ Système de commentaires et historique
+- ✅ Attribution d'agents aux signalements
+- ✅ Tableau de bord avec statistiques
+- ✅ Interface responsive et moderne
+- ✅ Authentification sécurisée avec NextAuth.js
+- ✅ Gestion des catégories par l'administrateur
+- ✅ Pages de profil pour tous les utilisateurs
+- ✅ Optimisations de performance (indexation, pagination, cache)
 
 ## 🚢 Déploiement sur Vercel
 
