@@ -3,7 +3,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { unstable_noStore as noStore } from 'next/cache'
-import { getStatusLabel, getStatusColor, getStatusIcon } from '@/lib/utils'
+import { getStatusLabel, getStatusColor, getStatusIcon, formatName } from '@/lib/utils'
 
 export default async function AdminDashboardPage() {
   noStore()
