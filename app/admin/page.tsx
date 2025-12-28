@@ -3,7 +3,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { unstable_noStore as noStore } from 'next/cache'
-import { getStatusLabel, getStatusColor, getStatusIcon, formatName } from '@/lib/utils'
+import { getStatusLabel, getStatusColor, getStatusIcon, formatName, getStatusBgColor } from '@/lib/utils'
 
 export default async function AdminDashboardPage() {
   noStore()
@@ -163,7 +163,7 @@ export default async function AdminDashboardPage() {
             {reportsByStatus.map((stat) => {
               const count = stat._count
               const percentage = totalReports > 0 ? ((count / totalReports) * 100).toFixed(1) : 0
-              const statusColor = getStatusColor(stat.status)
+              const statusBgColor = getStatusBgColor(stat.status)
               return (
                 <div key={stat.status} className="space-y-1">
                   <div className="flex justify-between items-center">
@@ -180,8 +180,11 @@ export default async function AdminDashboardPage() {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className={`h-2 rounded-full transition-all duration-500 ${statusColor.includes('bg-blue') ? 'bg-blue-500' : statusColor.includes('bg-green') ? 'bg-green-500' : statusColor.includes('bg-yellow') ? 'bg-yellow-500' : statusColor.includes('bg-red') ? 'bg-red-500' : 'bg-gray-500'}`}
-                      style={{ width: `${percentage}%` }}
+                      className="h-2 rounded-full transition-all duration-500"
+                      style={{ 
+                        width: `${percentage}%`,
+                        backgroundColor: statusBgColor
+                      }}
                     />
                   </div>
                 </div>
@@ -289,11 +292,16 @@ export default async function AdminDashboardPage() {
                       </p>
                     </div>
                     <span
-                      className={`ml-3 px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                      className={`ml-3 px-2.5 py-1.5 text-xs font-extrabold rounded-full ${getStatusColor(
                         report.status
-                      )}`}
+                      )} !text-white`}
+                      style={{
+                        backgroundColor: getStatusBgColor(report.status),
+                        color: '#ffffff',
+                      }}
                     >
-                      {getStatusIcon(report.status)} {getStatusLabel(report.status)}
+                      <span className="mr-1">{getStatusIcon(report.status)}</span>
+                      <span className="text-white font-extrabold">{getStatusLabel(report.status)}</span>
                     </span>
                   </div>
                 </Link>
