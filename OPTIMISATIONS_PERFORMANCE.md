@@ -69,3 +69,4 @@ Ajout d'index sur les champs fréquemment utilisés :
 - Les statistiques sont calculées en base de données (beaucoup plus rapide)
 - Le site devrait être significativement plus rapide maintenant
 
+

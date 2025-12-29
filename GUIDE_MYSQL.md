@@ -134,3 +134,4 @@ Vous pouvez vérifier dans MySQL Workbench ou phpMyAdmin.
 - ✅ Les enums sont supportés par MySQL
 - ⚠️ Assurez-vous que MySQL utilise `utf8mb4` pour supporter les emojis et caractères spéciaux
 
+
