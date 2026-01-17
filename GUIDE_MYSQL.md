@@ -135,3 +135,4 @@ Vous pouvez vérifier dans MySQL Workbench ou phpMyAdmin.
 - ⚠️ Assurez-vous que MySQL utilise `utf8mb4` pour supporter les emojis et caractères spéciaux
 
 
+

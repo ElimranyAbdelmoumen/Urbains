@@ -70,3 +70,4 @@ Ajout d'index sur les champs fréquemment utilisés :
 - Le site devrait être significativement plus rapide maintenant
 
 
+

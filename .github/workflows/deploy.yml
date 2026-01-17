@@ -1,0 +1,100 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Permet de déclencher manuellement
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  deploy:
+    name: Deploy to AWS EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'ENDSSH'
+            set -e
+            
+            echo "🚀 Déploiement en cours..."
+            
+            # Aller dans le répertoire du projet
+            cd /home/ubuntu/Urbains || cd /home/ec2-user/Urbains
+            
+            # Récupérer les dernières modifications
+            git fetch origin
+            git reset --hard origin/main || git reset --hard origin/master
+            
+            # Créer le fichier .env si nécessaire
+            if [ ! -f .env ]; then
+              echo "⚠️  Fichier .env non trouvé. Création d'un template..."
+              cat > .env << EOF
+            DATABASE_URL="${{ secrets.DATABASE_URL }}"
+            NEXTAUTH_SECRET="${{ secrets.NEXTAUTH_SECRET }}"
+            NEXTAUTH_URL="${{ secrets.NEXTAUTH_URL }}"
+            NODE_ENV=production
+            EOF
+            fi
+            
+            # Rebuild et redémarrer les containers
+            echo "🔨 Build de l'image Docker..."
+            docker-compose -f docker-compose.prod.yml build --no-cache
+            
+            echo "🔄 Génération du client Prisma..."
+            docker-compose -f docker-compose.prod.yml run --rm app npx prisma generate || true
+            
+            echo "📊 Mise à jour de la base de données..."
+            docker-compose -f docker-compose.prod.yml run --rm app npx prisma db push || true
+            
+            echo "🚀 Redémarrage des containers..."
+            docker-compose -f docker-compose.prod.yml down
+            docker-compose -f docker-compose.prod.yml up -d
+            
+            echo "🧹 Nettoyage des images Docker inutilisées..."
+            docker image prune -f
+            
+            echo "✅ Déploiement terminé!"
+            
+            # Afficher le statut
+            docker-compose -f docker-compose.prod.yml ps
+          ENDSSH
+
+      - name: Health Check
+        run: |
+          sleep 10
+          curl -f http://${{ secrets.EC2_HOST }} || exit 1
+        continue-on-error: true
+
+      - name: Deployment Summary
+        run: |
+          echo "✅ Déploiement terminé avec succès!"
+          echo "🌐 Application disponible sur: http://${{ secrets.EC2_HOST }}"
